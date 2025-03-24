@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Moderne</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IANIS</h1>
+            <p>Mapping intelligent de politiques de sécurité</p>
+        </header>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-message">
+                    <p>Entrez la description du contôle et IANIS se chargera du reste !</p>
+                </div>
+            </div>
+            
+            <form id="question-form">
+                <div class="input-container">
+                    <input type="text" id="question-input" placeholder="Posez votre question ici..." required>
+                    <button type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questionForm = document.getElementById('question-form');
+            const questionInput = document.getElementById('question-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            questionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const question = questionInput.value.trim();
+                if (!question) return;
+                
+                // Afficher la question posée
+                addMessage('question', question);
+                
+                // Envoyer la question au serveur
+                const formData = new FormData();
+                formData.append('question', question);
+                
+                fetch('/requestMapping', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Afficher les réponses
+                    if (data.reponses && data.reponses.length > 0) {
+                        const reponseContainer = document.createElement('div');
+                        reponseContainer.className = 'reponse-message';
+                        
+                        const reponseHeader = document.createElement('div');
+                        reponseHeader.className = 'reponse-header';
+                        reponseHeader.innerHTML = '<div class="avatar"></div><p>Voici mes réponses :</p>';
+                        reponseContainer.appendChild(reponseHeader);
+                        
+                        data.reponses.forEach(reponse => {
+                            const reponseList = document.createElement('ul');
+                            reponseList.className = 'reponse-list';
+                            
+                            const docItem = document.createElement('li');
+                            docItem.textContent = reponse.doc;
+                            docItem.className = "doc-message";
+                            reponseContainer.appendChild(docItem);
+
+                            reponse.reps.forEach(rep => {
+                                const reponseItem = document.createElement('li');
+                                reponseItem.textContent = rep;
+                                reponseList.appendChild(reponseItem);
+                            });
+                            reponseContainer.appendChild(reponseList);
+                            chatMessages.appendChild(reponseContainer);
+                        });
+                    }
+                    
+                    // Faire défiler vers le bas
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    addMessage('error', 'Une erreur est survenue lors du traitement de votre demande.');
+                });
+                
+                // Réinitialiser le champ de saisie
+                questionInput.value = '';
+            });
+            
+            function addMessage(type, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = type + '-message';
+                
+                if (type === 'question') {
+                    messageDiv.innerHTML = `<p>${content}</p>`;
+                } else {
+                    messageDiv.innerHTML = `<p>${content}</p>`;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
