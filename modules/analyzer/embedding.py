@@ -2,7 +2,6 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 from transformers import AutoTokenizer, AutoModel
-import scipy.spatial.distance as distance
 
 
 def load_model(model_name="sentence-transformers/distiluse-base-multilingual-cased-v2"):

@@ -1,7 +1,5 @@
-import PyPDF2
 import re
 import fitz  # PyMuPDF
-import numpy as np
 from collections import defaultdict
 
 
@@ -178,7 +176,11 @@ class PDFStructureAnalyzer:
                                 section_id = section['id']
                                 section_title = section['title']
                                 break
-              
+                    
+                    # if section_title == None: 
+                    #     section_title = 'None'
+                    #     if section_title not in self.structure: self.structure[section_title] = []
+
                     self.structure[section_title].append({
                         'id': statement_id,
                         'text': full_statement_text.strip(),
@@ -237,5 +239,6 @@ def extract_pdf(pdf_path):
     analyzer = PDFStructureAnalyzer(pdf_path)
     structure = analyzer.analyze_pdf_structure()
     
+    print(structure)
     return structure
 
