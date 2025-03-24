@@ -129,7 +129,8 @@ class PDFStructureAnalyzer:
         """
         # Différents modèles possibles d'énoncés
         statement_patterns = [
-            r'^\s*([A-Z0-9][\w\-]+)\s*:\s*(.*?)$',
+            r'^\s*([A-Z0-9][\w\-]+)\s*[:. ]\s*(.*?)$',
+            #r'^\s*([A-Z0-9][\w\-]+)\s*:\s*(.*?)$',
         ]
         
         statements = []
@@ -140,10 +141,11 @@ class PDFStructureAnalyzer:
             line = line.strip()
             if not line:
                 continue
-                
+            
             # Vérifier si la ligne correspond à un format d'énoncé
             for pattern in statement_patterns:
                 match = re.match(pattern, line, re.IGNORECASE)
+                print(match)
                 if match:
                     statement_id = match.group(1)
                     statement_text_start = match.group(2)
@@ -177,9 +179,10 @@ class PDFStructureAnalyzer:
                                 section_title = section['title']
                                 break
                     
-                    # if section_title == None: 
-                    #     section_title = 'None'
-                    #     if section_title not in self.structure: self.structure[section_title] = []
+                    # hotfix
+                    if section_title == None: 
+                        section_title = 'None'
+                        if section_title not in self.structure: self.structure[section_title] = []
 
                     self.structure[section_title].append({
                         'id': statement_id,
