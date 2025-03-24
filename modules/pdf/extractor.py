@@ -28,27 +28,30 @@ class PDFStructureAnalyzer:
         self.pages_content = []
         self.font_sizes = []
         
-        doc = fitz.open(self.pdf_path)
-        
-        for page_num, page in enumerate(doc):
-            # Extraire le texte de la page
-            text = page.get_text()
-            self.pages_content.append(text)
-            
-            # Collecter des informations sur les polices pour l'analyse structurelle
-            blocks = page.get_text("dict")["blocks"]
-            for block in blocks:
-                if "lines" in block:
-                    for line in block["lines"]:
-                        for span in line["spans"]:
-                            font_size = span["size"]
-                            font_name = span["font"]
-                            text = span["text"]
-                            if text.strip():  # Ignorer le texte vide
-                                self.font_stats[(font_name, font_size)].append(text)
-        
-        self.text_content = '\n'.join(self.pages_content)
-        return self.text_content
+        try:
+            with fitz.open(self.pdf_path) as doc:
+                for page_num, page in enumerate(doc):
+                    # Extraire le texte de la page
+                    text = page.get_text()
+                    self.pages_content.append(text)
+                    
+                    # Collecter des informations sur les polices pour l'analyse structurelle
+                    blocks = page.get_text("dict")["blocks"]
+                    for block in blocks:
+                        if "lines" in block:
+                            for line in block["lines"]:
+                                for span in line["spans"]:
+                                    font_size = span["size"]
+                                    font_name = span["font"]
+                                    text = span["text"]
+                                    if text.strip():  # Ignorer le texte vide
+                                        self.font_stats[(font_name, font_size)].append(text)
+                
+                self.text_content = '\n'.join(self.pages_content)
+                return self.text_content
+        except Exception as e:
+            print(f"Error while openning {self.pdf_path}")
+            exit(1)
     
     def identify_titles_by_font(self):
         """
@@ -127,9 +130,11 @@ class PDFStructureAnalyzer:
         Détecte les énoncés dans le document en recherchant des motifs courants
         comme "E1:", "VULN-1:", etc.
         """
+
+        STATEMENT_NAME = "VUL"
         # Différents modèles possibles d'énoncés
         statement_patterns = [
-            r'^\s*([A-Z0-9][\w\-]+)\s*[:. ]\s*(.*?)$',
+            rf'^\s*({STATEMENT_NAME}-?[0-9]+)\s*[:. ]\s*(.*?)$',
             #r'^\s*([A-Z0-9][\w\-]+)\s*:\s*(.*?)$',
         ]
         
@@ -142,10 +147,11 @@ class PDFStructureAnalyzer:
             if not line:
                 continue
             
+            print(line)
             # Vérifier si la ligne correspond à un format d'énoncé
             for pattern in statement_patterns:
                 match = re.match(pattern, line, re.IGNORECASE)
-                print(match)
+                
                 if match:
                     statement_id = match.group(1)
                     statement_text_start = match.group(2)

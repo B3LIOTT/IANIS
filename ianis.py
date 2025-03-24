@@ -2,8 +2,7 @@ from modules.pdf import *
 from modules.analyzer import *
 import os
 
-#DIR = "tests"
-DIR = "/home/debian/Documents/Wavestone/NIS2-RESA/IANIS-tests"
+DIR = "tests"
 
 def main(input_text):
     # input_text = "Des outils de sauvegrade doivent etre mis en place pour restituer les données"
