@@ -1,34 +1,36 @@
 from modules.pdf import *
 from modules.analyzer import *
 import os
-
-DIR = "/home/b3liott/Documents/Wavestone/Nis2RESA/IANIS-tests"
-pdf_path = "POL-SEC-Gestion des vulnérabilités 2.0"
-#pdf_path = "Politique de sécurité applicable aux tiers"
-
-# structure = extract_pdf(f"{DIR}/{pdf_path}.pdf")
-
 import PyPDF2
 import re
 
-def pdf_to_text(pdf_path, output_txt):
-    # Open the PDF file in read-binary mode
-    with open(pdf_path, 'rb') as pdf_file:
-        # Create a PdfReader object instead of PdfFileReader
-        pdf_reader = PyPDF2.PdfReader(pdf_file)
 
-        # Initialize an empty string to store the text
-        text = ''
+DIR = "/home/b3liott/Documents/Wavestone/Nis2RESA/IANIS-tests/"
+pdf_path = DIR+"POL-SEC-Gestion des vulnérabilités 2.0.pdf"
 
-        for page_num in range(len(pdf_reader.pages)):
-            page = pdf_reader.pages[page_num]
-            text += page.extract_text()
+from langchain.document_loaders import PyPDFLoader
 
-    STATEMENT_NAME = "VULN"
-    pattern = rf'^\s*({STATEMENT_NAME}-?[0-9]+)\s*[:. ]\s*(.*?)$' 
-    
-    print(text.split('\n'))
+# Charger le PDF
+loader = PyPDFLoader(pdf_path)
+pages = loader.load()
 
+text = ""
+for page in pages:
+    text += page.page_content
 
+L = text.strip().split("\n")
 
-pdf_to_text(DIR + '/' + pdf_path + '.pdf', 'tests/ok.txt')
+patterns = [
+    r'^\s*(\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,4})$',         # 1. Titre de section
+    r'^\s*(\d+\.\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,4})$',      # 1.1. Titre de sous-section
+    r'^\s*(\d+\.\d+\.\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,1})$', # 1.1.1. Titre de sous-sous-section
+    r'^\s*(I{1,3}|IV|V|VI{1,3}|IX|X)\.?\s+([\w \']+)([\s\-\',:.]{0,1})$', # I. Titre en chiffres romains
+    r'^\s*([A-Z])\.?\s+([\w \']+)([\s\-\',:.]{0,1})$',       # A. Titre en lettres
+]
+
+for line in L:
+    for pattern in patterns:
+        match = re.match(pattern, line)
+        if match:
+            print(f"Match found: {match.group(0)}")
+
