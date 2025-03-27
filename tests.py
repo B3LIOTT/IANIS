@@ -21,11 +21,11 @@ for page in pages:
 L = text.strip().split("\n")
 
 patterns = [
-    r'^\s*(\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,4})$',         # 1. Titre de section
-    r'^\s*(\d+\.\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,4})$',      # 1.1. Titre de sous-section
-    r'^\s*(\d+\.\d+\.\d+)\.?\s+([\w \']+)([\s\-\',:.]{0,1})$', # 1.1.1. Titre de sous-sous-section
-    r'^\s*(I{1,3}|IV|V|VI{1,3}|IX|X)\.?\s+([\w \']+)([\s\-\',:.]{0,1})$', # I. Titre en chiffres romains
-    r'^\s*([A-Z])\.?\s+([\w \']+)([\s\-\',:.]{0,1})$',       # A. Titre en lettres
+    r'^\s*(\d+)\.?\s+([\w \']+)([\s\-\':.]{0,4})$',         # 1. Titre de section
+    r'^\s*(\d+\.\d+)\.?\s+([\w \']+)([\s\-\':.]{0,4})$',      # 1.1. Titre de sous-section
+    r'^\s*(\d+\.\d+\.\d+)\.?\s+([\w \']+)([\s\-\':.]{0,1})$', # 1.1.1. Titre de sous-sous-section
+    r'^\s*(I{1,3}|IV|V|VI{1,3}|IX|X)\.?\s+([\w \']+)([\s\-\':.]{0,1})$', # I. Titre en chiffres romains
+    r'^\s*([A-Z])\.?\s+([\w \']+)([\s\-\':.]{0,1})$',       # A. Titre en lettres
 ]
 
 for line in L:
